@@ -1,28 +1,74 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum MovementState
+{
+    walking,
+    sprinting,
+    inAir,
+    crouch
+
+};
+
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField]
-    private float speed;
+    //Variable para manejar el Estado de Movimiento
+    private MovementState movementState;
 
+    [Header("Velocidad de Movimiento")]
+    private float velocidadMovimiento;
+    [SerializeField] private float velCaminar = 15f;
+    [SerializeField] private float velSprintar = 30f;
+
+    [Header("Agacharse (Crouch)")]
+    private float velAgachado = 12f;
+    private float escalaAgachadoY = 0.3f;
+    private float escalaInicial;
+
+    [Header("Velocidad de Rotación")]
     [SerializeField]
     private float turnSpeed;
 
+    [Header("Distancia de Disparo")]
     [SerializeField]
-    private float shootDistance = 4f;
+    private float shootDistance;
 
+    [Header("Particulas de Disparo)")]
     [SerializeField]
     private ParticleSystem shootPS;
 
+    [Header("Salud")]
     [SerializeField]
     private float health;
 
+    [Header("Cuerpo")]
+    [SerializeField]
+    private Transform cuerpo;
+
+    [Header("Control de Fricción")]
+    [SerializeField] 
+    private LayerMask capaSuelo;
+
+    private float friccionSuelo = 5;
+    private float multiplicadorDeAire = 1.25f;
+
+    //Flags de pegado al suelo y a Pared
+    private bool enElSuelo;
+    private bool enPared;
+
+
+    [Header("Clip de Disparo")]
+    [SerializeField]
+    private AudioClip clipDisparo;
+
+    //Referencia a Cámara
     private Transform cameraMain;
 
     private Rigidbody mRb;
+    private AudioSource mAudioSource;
 
     private Vector2 mDirection;
     private Vector2 mDeltaLook;
@@ -32,12 +78,16 @@ public class PlayerController : MonoBehaviour
     private GameObject bloodObjectParticles;
     private GameObject otherObjectParticles;
 
+    public bool EnElSuelo { get => enElSuelo; set => enElSuelo = value; }
+    public bool EnPared { get => enPared; set => enPared = value; }
+
     //-----------------------------------------------------------------------------------------
 
     private void Start()
     {
         //Obtenemos referencia al componente RigidBody
         mRb = GetComponent<Rigidbody>();
+        mAudioSource = GetComponent<AudioSource>();
 
         //Obtenemos referencia a la Camara Principal (Vista de jugador)
         cameraMain = transform.Find("Main Camera");
@@ -49,42 +99,99 @@ public class PlayerController : MonoBehaviour
 
         //Bloqueamos el Cursor para que este no sea visible
         Cursor.lockState = CursorLockMode.Locked;
+
+        //Almacenamos la escala inical (en Y)
+        escalaInicial = transform.localScale.y;
     }
+
     //-------------------------------------------------------------------------------------------
+
+    private void FixedUpdate()
+    {
+        MoverseConFuerza();
+    }
+
+    //--------------------------------------------------------------------------------------------
 
     private void Update()
     {
-        //Actualizamos constantemente la veloidad del Player
-        mRb.velocity = 
-            mDirection.y * speed * transform.forward 
-            + mDirection.x * speed * transform.right;
+        //Manejamos los estados para controlar el movimiento que se realizará
+        StateHandler();
 
-        //Actualizamos constantemente la rotación horizontal del Player en torno al Eje Y
-        transform.Rotate(
-            Vector3.up,
-            turnSpeed * Time.deltaTime * mDeltaLook.x
-        );
+        DetectarSuelo();
 
-        ////Actualizamos constantemente la rotación vertical del Player en torno al Eje X
-        cameraMain.GetComponent<CameraMovement>().RotateUpDown(
-            -turnSpeed * Time.deltaTime * mDeltaLook.y
-        );
+        ControlarAgachado();
 
+        ControlarRotacion();
     }
 
-    //---------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    //Manejador de Estados para controlar la Velocidad según cada acción o evento en suceso
+    private void StateHandler()
+    {
+        //Modo - AGACHADO
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            movementState = MovementState.crouch;
+            velocidadMovimiento = velAgachado;
+            multiplicadorDeAire = 1;
+        }
+        //Modo - SPRINTING
+        else if (Input.GetKey(KeyCode.LeftShift) && enElSuelo)
+        {
+            movementState = MovementState.sprinting;
+            velocidadMovimiento = velSprintar;
+            multiplicadorDeAire = 1;
+        }
 
+        //Modo - WALKING
+        else if (enElSuelo)
+        {
+            movementState = MovementState.walking;
+            velocidadMovimiento = velCaminar;
+            multiplicadorDeAire = 1f;
+        }
+
+        //Modo - EN EL AIRE
+        else
+        {
+            movementState = MovementState.inAir;
+            multiplicadorDeAire = 1.5f;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------
+    #region InputActions
     private void OnMove(InputValue value)
     {
         //Obtenemos Direccion de movimiento (en un Vector2, con X e Y)
         mDirection = value.Get<Vector2>();
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+    private void OnJump(InputValue value)
+    {
+        //Si se oprime el boton de Salto
+        if (value.isPressed)
+        {
+            //Si el Player está en el suelo...
+            if (enElSuelo)
+            {
+                //Saltamos Añadiendo una fuerza de impulso
+                mRb.AddForce(Vector3.up * 5.5f, ForceMode.Impulse);
+            }
+        }
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     private void OnLook(InputValue value)
     {
         //Obtenemos el Vector2 generado por la rotación del Raton
         mDeltaLook = value.Get<Vector2>();
     }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
     private void OnFire(InputValue value)
     {
@@ -95,6 +202,78 @@ public class PlayerController : MonoBehaviour
             Shoot();
         }
     }
+    #endregion
+    //--------------------------------------------------------------------------------------------
+
+    private void MoverseConFuerza()
+    {
+        //Aplicamos una fuerza al RB del Player para moverlo
+        mRb.AddForce(
+            (mDirection.y * transform.forward + mDirection.x * transform.right).normalized * velocidadMovimiento * multiplicadorDeAire,
+            ForceMode.Force
+            );
+
+    }
+
+    //-----------------------------------------------------------------------------------
+
+    private void ControlarAgachado()
+    {
+        //Si se está oprimiendo la tecla Control, y estamos sobre el suelo...
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            //Reducimos la escala del player
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                escalaAgachadoY,
+                transform.localScale.z);
+
+            //Empujamos hacia abajo a modo de impulso
+            mRb.AddForce(Vector3.down * 5, ForceMode.Impulse);
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            //Devolvemos a la Escala Inicial la escala del player
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                escalaInicial,
+                transform.localScale.z);
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+    private void ControlarRotacion()
+    {
+        //Actualizamos constantemente la rotación horizontal del Player en torno al Eje Y
+        transform.Rotate(
+            Vector3.up,
+            turnSpeed * Time.deltaTime * mDeltaLook.x
+        );
+
+        ////Actualizamos constantemente la rotación vertical del Player en torno al Eje X
+        cameraMain.GetComponent<CameraMovement>().RotateUpDown(
+            -turnSpeed * Time.deltaTime * mDeltaLook.y
+        );
+    }
+
+    //---------------------------------------------------------------------------------------------
+
+
+    private void DetectarSuelo()
+    {
+        //Si Detectamos que estamos en contacto con el suelo
+        if (Physics.Raycast(cuerpo.position, Vector3.down, 0.425f, capaSuelo))
+        {
+            enElSuelo = true;
+            //Asignamos el Drag del suelo
+            mRb.drag = friccionSuelo; //5
+        }
+        else
+        {
+            enElSuelo = false;
+        }
+    }
 
     //-----------------------------------------------------------------------------------------------
 
@@ -102,6 +281,7 @@ public class PlayerController : MonoBehaviour
     {
         //Reproducimos el sistema de Particulas del Disparo
         shootPS.Play();
+        mAudioSource.PlayOneShot(clipDisparo, 0.40f);
 
         //Lanzamos un RAYCAST hacia el frente, considerando la distancia de disparo delimitada
         RaycastHit hit;
@@ -164,6 +344,13 @@ public class PlayerController : MonoBehaviour
             TakeDamage(1f);
         }
         
+    }
+
+    //-----------------------------------------------------------------------------------------------------
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawRay(cuerpo.position, Vector3.down * 0.425f);
     }
 
 }

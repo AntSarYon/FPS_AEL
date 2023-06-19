@@ -30,7 +30,5 @@ public class CameraMovement : MonoBehaviour
         //Actualizamos la rotación del Transform de la cámara
         transform.rotation = Quaternion.Euler(newRotation);
 
-        print(transform.rotation.eulerAngles);
-
     }
 }
