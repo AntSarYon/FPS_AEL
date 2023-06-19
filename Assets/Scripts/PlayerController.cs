@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEditor.SceneManagement;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,7 +12,8 @@ public enum MovementState
     sprinting,
     inAir,
     crouch,
-    wallRunning
+    wallRunning,
+    freeze
 
 };
 
@@ -60,6 +63,11 @@ public class PlayerController : MonoBehaviour
     //Flags de pegado al suelo y a Pared
     private bool enElSuelo;
     private bool wallRunning;
+    private bool freeze;
+    private bool ganchoActivo;
+
+    private Vector3 velocidadResultanteDeGancho;
+    private bool permitirMovimientoEnSiguienteAccion;
 
 
     [Header("Clip de Disparo")]
@@ -83,6 +91,9 @@ public class PlayerController : MonoBehaviour
     public bool EnElSuelo { get => enElSuelo; set => enElSuelo = value; }
     public bool WallRunning { get => wallRunning; set => wallRunning = value; }
     public Vector2 MDirection { get => mDirection; set => mDirection = value; }
+    public bool Freeze { get => freeze; set => freeze = value; }
+    public bool GanchoActivo { get => ganchoActivo; set => ganchoActivo = value; }
+    public Transform Cuerpo { get => cuerpo; set => cuerpo = value; }
 
     //-----------------------------------------------------------------------------------------
 
@@ -134,14 +145,23 @@ public class PlayerController : MonoBehaviour
     //Manejador de Estados para controlar la Velocidad según cada acción o evento en suceso
     private void StateHandler()
     {
-        if (wallRunning)
+        //Modo - Quieto (enganchado)
+        if (freeze)
+        {
+            movementState = MovementState.freeze;
+            velocidadMovimiento = 0;
+            mRb.velocity = Vector3.zero;
+        }
+
+        //Modo - WallRunning
+        else if (wallRunning)
         {
             movementState = MovementState.wallRunning;
             velocidadMovimiento = velWallRun;
             multiplicadorDeAire = 1;
         }
         //Modo - AGACHADO
-        if (Input.GetKey(KeyCode.LeftControl))
+        else if (Input.GetKey(KeyCode.LeftControl))
         {
             movementState = MovementState.crouch;
             velocidadMovimiento = velAgachado;
@@ -218,6 +238,9 @@ public class PlayerController : MonoBehaviour
 
     private void MoverseConFuerza()
     {
+        //Si el Gancho esta activo, no te muevas
+        if (ganchoActivo) return;
+
         //Aplicamos una fuerza al RB del Player para moverlo
         mRb.AddForce(
             (mDirection.y * transform.forward + mDirection.x * transform.right).normalized * velocidadMovimiento * multiplicadorDeAire,
@@ -256,6 +279,9 @@ public class PlayerController : MonoBehaviour
 
     private void ControlarVelocidad()
     {
+        //Si el Gancho está activo, no controles la velocidad
+        if (ganchoActivo) return;
+
         Vector3 velocidadPlana = new Vector3(mRb.velocity.x, 0, mRb.velocity.z);
 
         //Limitamos la velocidad dentro del limite
@@ -286,12 +312,17 @@ public class PlayerController : MonoBehaviour
 
     private void DetectarSuelo()
     {
-        //Si Detectamos que estamos en contacto con el suelo
-        if (Physics.Raycast(cuerpo.position, Vector3.down, 0.45f, capaSuelo))
+        //Si Detectamos que estamos en contacto con el suelo; y el gancho NO esta activo
+        if (Physics.Raycast(cuerpo.position, Vector3.down, 0.45f, capaSuelo) && !ganchoActivo)
         {
             enElSuelo = true;
             //Asignamos el Drag del suelo
             mRb.drag = friccionSuelo; //5
+        }
+        else if (ganchoActivo)
+        {
+            enElSuelo = false;
+            mRb.drag = 0f;
         }
         else
         {
@@ -343,7 +374,59 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //-------------------------------------------------------------------------------------------------
+
+    public void SaltoConGanchoHaciaPosicion(Vector3 posicionObjetivo, float alturaDeTrayectoria)
+    {
+        //Activamos el Flag de Gancho Activo
+        ganchoActivo = true;
+
+        //Almacenamos la Velocidad resultado del calculo
+        velocidadResultanteDeGancho = CalcularVelocidadDeSaltoGancho(cuerpo.position, posicionObjetivo, alturaDeTrayectoria);
+
+        Invoke(nameof(AsignacionDeVelocidadGancho), 0.1f);
+
+        //Reiniciamos las restricciones y habilitamos el movimiento pasados 3 segundos
+        Invoke(nameof(ReiniciarRestricciones), 3f);
+    }
+
+    //---------------------------------------------------------------------------------------------
+
+    public void AsignacionDeVelocidadGancho()
+    {
+        permitirMovimientoEnSiguienteAccion = true;
+        mRb.velocity = velocidadResultanteDeGancho;
+    }
+
     //---------------------------------------------------------------------------------------------------
+
+    public Vector3 CalcularVelocidadDeSaltoGancho(Vector3 puntoInicial, Vector3 puntoFinal, float alturaDeTrayectoria)
+    {
+        //Obtenemos la gravedad (Fuerza constante en Y)
+        float gravedad = Physics.gravity.y;
+
+        //Obtenemos el desplazamiento que se llevará a cabo en Y
+        float desplazamientoEnY = puntoFinal.y - puntoInicial.y;
+
+        //Obtenemos el desplazamiento que se llevará a cabo en X y Z
+        Vector3 desplazamientoEnXZ = new Vector3(
+            puntoFinal.x - puntoInicial.x,
+            0f,
+            puntoFinal.z - puntoInicial.z
+            );
+
+        //Calculamos la velocidad en Y
+        Vector3 velocidadEnY = Vector3.up * Mathf.Sqrt(-2 * gravedad * alturaDeTrayectoria);
+
+        //Calculamos la velocidad en X y Z
+        Vector3 velocidadEnXZ = desplazamientoEnXZ / (Mathf.Sqrt(-2 * alturaDeTrayectoria / gravedad)
+            + Mathf.Sqrt(2 * (desplazamientoEnY - alturaDeTrayectoria) / gravedad));
+
+        //Regreamos el Vector Velocidad total
+        return velocidadEnXZ + velocidadEnY;
+    }
+
+    //----------------------------------------------------------------------------------------------------
 
     public void TakeDamage(float damage)
     {
@@ -358,8 +441,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //-------------------------------------------------------------------
+
+    public void ReiniciarRestricciones()
+    {
+        ganchoActivo = false;
+    }
+
     //----------------------------------------------------------------------------------------------------
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (permitirMovimientoEnSiguienteAccion)
+        {
+            permitirMovimientoEnSiguienteAccion = false;
+            ReiniciarRestricciones();
+
+            GetComponent<Grappling>().StopGrapple();
+        }
+    }
     private void OnTriggerEnter(Collider col)
     {
         //Si entramos en contacto con el Collider del ataque del enemigo...
