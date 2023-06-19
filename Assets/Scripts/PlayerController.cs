@@ -9,7 +9,8 @@ public enum MovementState
     walking,
     sprinting,
     inAir,
-    crouch
+    crouch,
+    wallRunning
 
 };
 
@@ -20,11 +21,12 @@ public class PlayerController : MonoBehaviour
 
     [Header("Velocidad de Movimiento")]
     private float velocidadMovimiento;
-    [SerializeField] private float velCaminar = 15f;
-    [SerializeField] private float velSprintar = 30f;
+    [SerializeField] private float velCaminar;
+    [SerializeField] private float velSprintar;
+    [SerializeField] private float velAgachado;
+    [SerializeField] private float velWallRun;
 
-    [Header("Agacharse (Crouch)")]
-    private float velAgachado = 12f;
+    //VARIABLES PARA Agacharse (Crouch)
     private float escalaAgachadoY = 0.3f;
     private float escalaInicial;
 
@@ -53,11 +55,11 @@ public class PlayerController : MonoBehaviour
     private LayerMask capaSuelo;
 
     private float friccionSuelo = 5;
-    private float multiplicadorDeAire = 1.25f;
+    private float multiplicadorDeAire = 0.4f;
 
     //Flags de pegado al suelo y a Pared
     private bool enElSuelo;
-    private bool enPared;
+    private bool wallRunning;
 
 
     [Header("Clip de Disparo")]
@@ -79,7 +81,8 @@ public class PlayerController : MonoBehaviour
     private GameObject otherObjectParticles;
 
     public bool EnElSuelo { get => enElSuelo; set => enElSuelo = value; }
-    public bool EnPared { get => enPared; set => enPared = value; }
+    public bool WallRunning { get => wallRunning; set => wallRunning = value; }
+    public Vector2 MDirection { get => mDirection; set => mDirection = value; }
 
     //-----------------------------------------------------------------------------------------
 
@@ -118,6 +121,8 @@ public class PlayerController : MonoBehaviour
         //Manejamos los estados para controlar el movimiento que se realizará
         StateHandler();
 
+        ControlarVelocidad();
+
         DetectarSuelo();
 
         ControlarAgachado();
@@ -129,6 +134,12 @@ public class PlayerController : MonoBehaviour
     //Manejador de Estados para controlar la Velocidad según cada acción o evento en suceso
     private void StateHandler()
     {
+        if (wallRunning)
+        {
+            movementState = MovementState.wallRunning;
+            velocidadMovimiento = velWallRun;
+            multiplicadorDeAire = 1;
+        }
         //Modo - AGACHADO
         if (Input.GetKey(KeyCode.LeftControl))
         {
@@ -156,7 +167,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             movementState = MovementState.inAir;
-            multiplicadorDeAire = 1.5f;
+            multiplicadorDeAire = 0.4f;
         }
     }
 
@@ -179,7 +190,7 @@ public class PlayerController : MonoBehaviour
             if (enElSuelo)
             {
                 //Saltamos Añadiendo una fuerza de impulso
-                mRb.AddForce(Vector3.up * 5.5f, ForceMode.Impulse);
+                mRb.AddForce(Vector3.up * 4.25f, ForceMode.Impulse);
             }
         }
     }
@@ -243,6 +254,19 @@ public class PlayerController : MonoBehaviour
 
     //----------------------------------------------------------------------------------------------
 
+    private void ControlarVelocidad()
+    {
+        Vector3 velocidadPlana = new Vector3(mRb.velocity.x, 0, mRb.velocity.z);
+
+        //Limitamos la velocidad dentro del limite
+        if (velocidadPlana.magnitude > velocidadMovimiento)
+        {
+            Vector3 velocidadLimitada = velocidadPlana.normalized * velocidadMovimiento;
+            mRb.velocity = new Vector3(velocidadLimitada.x, mRb.velocity.y, velocidadLimitada.z);
+        }
+    }
+    //----------------------------------------------------------------------------------
+
     private void ControlarRotacion()
     {
         //Actualizamos constantemente la rotación horizontal del Player en torno al Eje Y
@@ -263,7 +287,7 @@ public class PlayerController : MonoBehaviour
     private void DetectarSuelo()
     {
         //Si Detectamos que estamos en contacto con el suelo
-        if (Physics.Raycast(cuerpo.position, Vector3.down, 0.425f, capaSuelo))
+        if (Physics.Raycast(cuerpo.position, Vector3.down, 0.45f, capaSuelo))
         {
             enElSuelo = true;
             //Asignamos el Drag del suelo
@@ -272,6 +296,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             enElSuelo = false;
+            mRb.drag = 0.75f;
         }
     }
 
@@ -350,7 +375,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawRay(cuerpo.position, Vector3.down * 0.425f);
+        Gizmos.DrawRay(cuerpo.position, Vector3.down * 0.45f);
     }
 
 }
