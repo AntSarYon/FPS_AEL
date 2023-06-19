@@ -8,6 +8,9 @@ public class WallRunning : MonoBehaviour
     [SerializeField] private LayerMask capaSuelo;
     [SerializeField] private LayerMask capaEdificios;
 
+    [Header("Camara")]
+    [SerializeField] private CameraMovement camara;
+
     [SerializeField] private float fuerzaWallRun;
     [SerializeField] private float velocidadEscalada;
     [SerializeField] private float fuerzaJumpUp;
@@ -148,6 +151,15 @@ public class WallRunning : MonoBehaviour
     {
         //Activamos el Flag de Wall Running en el PlayerController
         player.WallRunning = true;
+
+        //Quitamos toda velocidad en el Eje Y
+        mRb.velocity = new Vector3(mRb.velocity.x, 0, mRb.velocity.z);
+
+        //Ajustamos la camara para dar el Efecto de Inclinacion
+        camara.DoFov(75f);
+
+        if (wallLeft) camara.DoTilt(-5f);
+        if (wallRight) camara.DoTilt(5f);
     }
 
     //------------------------------------------------------------------------
@@ -157,8 +169,7 @@ public class WallRunning : MonoBehaviour
         //Desactivamos la gravedad
         mRb.useGravity = false;
 
-        //Quitamos toda velocidad en el Eje Y
-        mRb.velocity = new Vector3(mRb.velocity.x, 0, mRb.velocity.z);
+        
 
         //Obtenemos la normal de la Pared con la que entramos en contacto
         Vector3 wallNormal = wallRight ? rightWallHit.normal : leftWallHit.normal;
@@ -205,6 +216,12 @@ public class WallRunning : MonoBehaviour
 
         //Activamos la gravedad nuevamente
         mRb.useGravity = true;
+
+        //Reseteamos las propiedades de la camara
+        camara.DoFov(60f);
+        camara.DoTilt(0f);
+
+
     }
 
     //-----------------------------------------------------------------------------------------

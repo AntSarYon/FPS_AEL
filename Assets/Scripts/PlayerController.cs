@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
         mAudioSource = GetComponent<AudioSource>();
 
         //Obtenemos referencia a la Camara Principal (Vista de jugador)
-        cameraMain = transform.Find("Main Camera");
+        cameraMain = transform.Find("SujetadorDeCamara").Find("Main Camera");
 
         //Asignamos las Partículas a través de la Carpeta de Resources
         debugImpactSphere = Resources.Load<GameObject>("DebugImpactSphere");
