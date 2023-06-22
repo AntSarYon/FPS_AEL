@@ -32,6 +32,9 @@ public class EnemyController : MonoBehaviour
     //Flag de Ataque en curso -> Inicializado en Falso
     private bool mIsAttacking = false;
 
+    //Tendremos una Maquina de Estados Finita (FSM)
+    private FSM<EnemyController> mFSM;
+
     //-----------------------------------------------------------------------
 
     private void Start()
@@ -40,6 +43,17 @@ public class EnemyController : MonoBehaviour
         mRb = GetComponent<Rigidbody>();
         mAnimator = transform.GetComponentInChildren<Animator>(false); //<-- Le decimos que considere a los GO hijos desactivados
         navMeshAgent = GetComponent<NavMeshAgent>();
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //Creamos un FSM indicando este Script como principal componente
+        mFSM = new FSM<EnemyController>(
+
+            //El Estado inicial será...
+            new Enemy.EnemyIdleState(this)
+            );
+
+        // Activamos la máquina de estados
+        mFSM.Begin();
     }
 
     //-------------------------------------------------------------------------
@@ -107,34 +121,6 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    //---------------------------------------------------------------------------------
-
-    /*private void Walk(Collider collider2)
-    {
-        // caminar
-        var playerPosition = collider2.transform.position;
-        var direction = playerPosition - transform.position;
-        mDirection = new Vector2(direction.x, direction.z);
-
-        //transform.LookAt(playerPosition, Vector3.up);
-        direction.y = 0f;
-
-        transform.rotation = Quaternion.Lerp(
-            transform.rotation,
-            Quaternion.LookRotation(direction, Vector3.up),
-            0.1f
-        );
-
-        mRb.velocity = new Vector3(
-            mDirection.x * Speed,
-            0f,
-            mDirection.y * Speed
-        );
-
-        mAnimator.SetBool("IsWalking", true);
-        mAnimator.SetFloat("Horizontal", mDirection.x);
-        mAnimator.SetFloat("Vertical", mDirection.y);
-    }*/
 
     //---------------------------------------------------------------------------------------
     //Función para detectar si el jugador está cerca
