@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7060847946485185749}
   - component: {fileID: 7060847946485185746}
   - component: {fileID: 7060847946485185747}
-  - component: {fileID: 7060847946485185744}
+  - component: {fileID: 5319960288078963608}
   - component: {fileID: 7060847946485185745}
   m_Layer: 0
   m_Name: ZombiePolicia
@@ -36,7 +36,7 @@ Transform:
   - {fileID: 7383531403473199684}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!54 &7060847946485185746
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -67,7 +67,7 @@ CapsuleCollider:
   m_Height: 2.024537
   m_Direction: 1
   m_Center: {x: -0.01253451, y: 0.98696834, z: -3.723279e-18}
---- !u!114 &7060847946485185744
+--- !u!114 &5319960288078963608
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -76,15 +76,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 7060847946485185758}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6ef61551ed03ce4d87b6ea3b3420243, type: 3}
+  m_Script: {fileID: 11500000, guid: 40b7f005f728e8f4598a4a868379c07d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 0.75
-  AwakeRadio: 3
-  AttackRadio: 0.5
-  Health: 5
-  hitboxRight: {fileID: 7060847946557109533}
-  hitboxLeft: {fileID: 7060847947894481245}
 --- !u!195 &7060847946485185745
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -95,7 +89,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -356,7 +350,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 2970f4a953bf58f42afc044f5918b724, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 0aec0ba479702a04999061efe2d7ecbe, type: 2}
+      objectReference: {fileID: 9100000, guid: 3aa15ef332ebcf740ac930069ecf40b3, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2970f4a953bf58f42afc044f5918b724, type: 3}
 --- !u!4 &516343471572351830 stripped
@@ -379,7 +373,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2970f4a953bf58f42afc044f5918b724, type: 3}
   m_PrefabInstance: {fileID: 7060847947659560367}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7060847947659560352
+--- !u!114 &4274051892713769015
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -388,7 +382,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 7871238943227148542}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f54dd104c1228a34689f8cbfb1eb0e7a, type: 3}
+  m_Script: {fileID: 11500000, guid: 7faa95a40e431a745840aff0a6448fac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 7060847946485185744}
