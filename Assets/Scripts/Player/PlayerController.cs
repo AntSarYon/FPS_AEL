@@ -105,6 +105,9 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        //Inicializamoe salud en 100
+        health = 100;
+
         //Obtenemos la referencia al array de weapons
         weaponSwitch = gameObject.GetComponent<WeaponSwitch>();
 
@@ -366,19 +369,36 @@ public class PlayerController : MonoBehaviour
             {
                 //Instanciamos el Sistema de Particulas para la Sangre, en el punto dexacto donde impacta el disparo
                 var bloodPS = Instantiate(bloodObjectParticles, hit.point, Quaternion.identity);
+
                 //Destruimos las Particulas habiendo pasado 3 segundos
                 Destroy(bloodPS, 3f);
 
-                //Obtenemos referencia al EnemyController del enemigo impactado
-                var enemyController = hit.collider.GetComponent<EnemyController>();
-                //Hacemos que reciba da�o
-                if (selectedWeaponIndex == 0)
+
+                //Calculamos el daño inflingido segun el arma que tengamos
+
+                float ataqueinflingido = 0;
+
+                if (selectedWeaponIndex == 0) ataqueinflingido = 2f;
+                else ataqueinflingido = 1f;
+
+                ZombieController zombieController = null;
+                EnemyController enemyCnotroller = null;
+                CrawlerController crawlerController = null;
+
+                //Obtenemos referencia al Controller del enemigo impactado
+                //Tras esto, le hacemos daño
+
+                if (hit.collider.TryGetComponent<ZombieController>(out zombieController))
                 {
-                    enemyController.TakeDamage(2f);
+                    zombieController.TakeDamage(ataqueinflingido);
                 }
-                else
+                else if (hit.collider.TryGetComponent<EnemyController>(out enemyCnotroller))
                 {
-                    enemyController.TakeDamage(1f);
+                    enemyCnotroller.TakeDamage(ataqueinflingido);
+                }
+                else if (hit.collider.TryGetComponent<CrawlerController>(out crawlerController))
+                {
+                    crawlerController.TakeDamage(ataqueinflingido);
                 }
 
             }

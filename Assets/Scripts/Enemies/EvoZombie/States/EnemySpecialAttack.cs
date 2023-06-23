@@ -85,6 +85,8 @@ namespace Enemy
                 0f
             );
 
+            mController.NavMeshAgent.speed = 0;
+
             //Detenemos al NavMeshAgent
             mController.NavMeshAgent.isStopped = true;
 

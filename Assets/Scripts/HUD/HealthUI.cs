@@ -11,7 +11,8 @@ public class HealthUI : MonoBehaviour
     private PlayerController player;
     private TMP_Text  SaludText;
 
-    // Start is called before the first frame update
+    //---------------------------------------------------------------------------------
+
     void Start()
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
@@ -20,7 +21,8 @@ public class HealthUI : MonoBehaviour
 
     }
 
-    // Update is called once per frame
+    //-----------------------------------------------------------------------------------
+
     void Update()
     {
         //Actualizar salud

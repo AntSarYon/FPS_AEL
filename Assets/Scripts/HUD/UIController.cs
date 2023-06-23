@@ -5,24 +5,35 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
-    // Start is called before the first frame update
+    
     private PlayerController player;
     private int currentFaceSet;
+
+    private Image imgFace;
+
     public Sprite[] facesFullHP;
     public Sprite[] facesHighHP;
     public Sprite[] facesLowHP;
     public Sprite[] facesLowestHP;
     
+    //---------------------------------------------------------------------------
+
     void Start()
     {
+        //Obtenemos referencia al player
         player = GameObject.Find("Player").GetComponent<PlayerController>();
+
+        imgFace = GetComponent<Image>();
         currentFaceSet = 4;
     }
+
+    //------------------------------------------------------------------------------
 
     // Update is called once per frame
     void Update()
     {
         changeFace();
+
         if (player.IsGrappling() == true){
             currentFaceSet = 0;
         }
@@ -38,17 +49,18 @@ public class UIController : MonoBehaviour
     }
 
     public void changeFace(){
+
         if (player.health > 75){
-            GameObject.Find("Face").GetComponent<Image>().sprite = facesFullHP[currentFaceSet];
+            imgFace.sprite = facesFullHP[currentFaceSet];
         }
         else if (player.health > 50){
-            GameObject.Find("Face").GetComponent<Image>().sprite = facesHighHP[currentFaceSet];
+            imgFace.sprite = facesHighHP[currentFaceSet];
         } 
         else if (player.health > 25){
-            GameObject.Find("Face").GetComponent<Image>().sprite = facesLowHP[currentFaceSet];
+            imgFace.sprite = facesLowHP[currentFaceSet];
         } 
         else if (player.health > 0){
-            GameObject.Find("Face").GetComponent<Image>().sprite = facesLowestHP[currentFaceSet];
+            imgFace.sprite = facesLowestHP[currentFaceSet];
         } 
     }
 }
