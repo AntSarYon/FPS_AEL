@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public enum MovementState
 {
@@ -19,6 +20,9 @@ public enum MovementState
 
 public class PlayerController : MonoBehaviour
 {
+    //weaponSwitch
+    static WeaponSwitch weaponSwitch;
+
     //Variable para manejar el Estado de Movimiento
     private MovementState movementState;
 
@@ -42,11 +46,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("Distancia de Disparo")]
     [SerializeField]
-    private float shootDistance;
+    private float[] shootDistance;
 
     [Header("Particulas de Disparo)")]
     [SerializeField]
-    private ParticleSystem shootPS;
+    private ParticleSystem[] shootPS;
 
     [Header("Salud")]
     [SerializeField]
@@ -74,8 +78,7 @@ public class PlayerController : MonoBehaviour
 
 
     [Header("Clip de Disparo")]
-    [SerializeField]
-    private AudioClip clipDisparo;
+    public AudioClip[] clipDisparo;
 
     //Referencia a C�mara
     private Transform cameraMain;
@@ -102,6 +105,9 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        //Obtenemos la referencia al array de weapons
+        weaponSwitch = gameObject.GetComponent<WeaponSwitch>();
+
         //Obtenemos referencia al componente RigidBody
         mRb = GetComponent<Rigidbody>();
         mAudioSource = GetComponent<AudioSource>();
@@ -342,15 +348,18 @@ public class PlayerController : MonoBehaviour
 
     private void Shoot()
     {
+        //Posicion actual del array weapons
+        int selectedWeaponIndex = weaponSwitch.selectedWeapon;
         //Reproducimos el sistema de Particulas del Disparo
-        shootPS.Play();
-        mAudioSource.PlayOneShot(clipDisparo, 0.40f);
+        shootPS[selectedWeaponIndex].Play();
+        
+        mAudioSource.PlayOneShot(clipDisparo[selectedWeaponIndex], 0.40f);
 
         //Lanzamos un RAYCAST hacia el frente, considerando la distancia de disparo delimitada
         RaycastHit hit;
 
         //Si impactamos algo...
-        if (Physics.Raycast(cameraMain.position,cameraMain.forward,out hit,shootDistance))
+        if (Physics.Raycast(cameraMain.position,cameraMain.forward,out hit,shootDistance[selectedWeaponIndex]))
         {
             //Si la etiqueta del Objeto impactado es "ENEMIGOS"
             if (hit.collider.CompareTag("Enemigos"))
@@ -363,7 +372,14 @@ public class PlayerController : MonoBehaviour
                 //Obtenemos referencia al EnemyController del enemigo impactado
                 var enemyController = hit.collider.GetComponent<EnemyController>();
                 //Hacemos que reciba da�o
-                enemyController.TakeDamage(1f);
+                if (selectedWeaponIndex == 0)
+                {
+                    enemyController.TakeDamage(2f);
+                }
+                else
+                {
+                    enemyController.TakeDamage(1f);
+                }
 
             }
             
@@ -485,6 +501,7 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawRay(cuerpo.position, Vector3.down * 0.45f);
     }
 
+    // Funciones públicas para obtener estados
     public bool IsOnFloor(){
         return enElSuelo;
     }
@@ -502,6 +519,5 @@ public class PlayerController : MonoBehaviour
             return false;
         }
     }
-
 
 }
