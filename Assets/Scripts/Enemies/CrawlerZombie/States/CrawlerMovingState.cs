@@ -39,6 +39,8 @@ namespace Crawler
 
             //Activamose l Flag de Animación para Caminar
             mController.MAnimator.SetBool("IsWalking", true);
+
+            mController.MAudioSource.PlayOneShot(mController.clipJugadorCerca, 0.30f);
         }
 
         public override void OnExit()

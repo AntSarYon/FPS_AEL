@@ -33,12 +33,19 @@ public class ZombieController : MonoBehaviour
     //Tendremos una Maquina de Estados Finita (FSM)
     private FSM<ZombieController> mFSM;
 
+    private AudioSource mAudioSource;
+
+    public AudioClip clipJugadorCerca;
+    public AudioClip clipAtacando;
+    public AudioClip clipMuerte;
+
     public Collider PlayerDetectionCollider { get => playerDetectionCollider; set => playerDetectionCollider = value; }
     public Collider PlayerAttackCollider { get => playerAttackCollider; set => playerAttackCollider = value; }
     public bool MIsAttacking { get => mIsAttacking; set => mIsAttacking = value; }
     public Animator MAnimator { get => mAnimator; set => mAnimator = value; }
     public Rigidbody MRb { get => mRb; set => mRb = value; }
     public NavMeshAgent NavMeshAgent { get => navMeshAgent; set => navMeshAgent = value; }
+    public AudioSource MAudioSource { get => mAudioSource; set => mAudioSource = value; }
 
     //------------------------------------------------------------------
 
@@ -48,6 +55,7 @@ public class ZombieController : MonoBehaviour
         mRb = GetComponent<Rigidbody>();
         mAnimator = transform.GetComponentInChildren<Animator>(false); //<-- Le decimos que considere a los GO hijos desactivados
         navMeshAgent = GetComponent<NavMeshAgent>();
+        MAudioSource = GetComponent<AudioSource>();
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //Creamos un FSM indicando este Script como principal componente

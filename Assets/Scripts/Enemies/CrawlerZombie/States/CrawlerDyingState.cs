@@ -15,6 +15,8 @@ namespace Crawler
 
         public override void OnEnter()
         {
+            mController.MAudioSource.PlayOneShot(mController.clipMuerte, 0.30f);
+
             //Desactivamos el Flag de animacion para el movimiento
             mController.MAnimator.SetBool("IsWalking", false);
 

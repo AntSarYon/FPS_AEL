@@ -62,6 +62,8 @@ namespace Enemy
         {
             //La velocidad inicia del NavMeshAgent sera de 3.75
             mController.NavMeshAgent.speed = 3.75f;
+
+            mController.MAudioSource.PlayOneShot(mController.clipsDespertando[Random.Range(0, mController.clipsJugadorCerca.Length)], 0.30f);
         }
 
         public override void OnExit()

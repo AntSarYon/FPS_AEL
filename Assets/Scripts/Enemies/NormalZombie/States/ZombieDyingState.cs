@@ -36,6 +36,8 @@ namespace Zombie
 
             //Activamos el Flag de animacion para la Muerte (en base al Aleatorio)
             mController.MAnimator.SetTrigger($"Death{indiceMuerte}");
+
+            mController.MAudioSource.PlayOneShot(mController.clipMuerte, 0.30f);
         }
 
         public override void OnExit()

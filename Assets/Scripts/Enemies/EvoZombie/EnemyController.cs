@@ -38,6 +38,14 @@ public class EnemyController : MonoBehaviour
     //Tendremos una Maquina de Estados Finita (FSM)
     private FSM<EnemyController> mFSM;
 
+    private AudioSource mAudioSource;
+
+    public AudioClip[] clipsDespertando;
+    public AudioClip[] clipsJugadorCerca;
+    public AudioClip[] clipsAtacando;
+    public AudioClip[] clipsSaltando;
+    public AudioClip[] clipsMuerte;
+
     public Animator MAnimator { get => mAnimator; set => mAnimator = value; }
     public Rigidbody MRb { get => mRb; set => mRb = value; }
     public NavMeshAgent NavMeshAgent { get => navMeshAgent; set => navMeshAgent = value; }
@@ -46,6 +54,7 @@ public class EnemyController : MonoBehaviour
     public Collider PlayerAttackCollider { get => playerAttackCollider; set => playerAttackCollider = value; }
     public bool MIsAttacking { get => mIsAttacking; set => mIsAttacking = value; }
     public Collider PlayerSpecialAttackCollider { get => playerSpecialAttackCollider; set => playerSpecialAttackCollider = value; }
+    public AudioSource MAudioSource { get => mAudioSource; set => mAudioSource = value; }
 
     //-----------------------------------------------------------------------
 
@@ -55,6 +64,7 @@ public class EnemyController : MonoBehaviour
         mRb = GetComponent<Rigidbody>();
         mAnimator = transform.GetComponentInChildren<Animator>(false); //<-- Le decimos que considere a los GO hijos desactivados
         navMeshAgent = GetComponent<NavMeshAgent>();
+        MAudioSource = GetComponent<AudioSource>();
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //Creamos un FSM indicando este Script como principal componente

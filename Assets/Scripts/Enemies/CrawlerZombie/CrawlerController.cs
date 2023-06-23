@@ -26,10 +26,16 @@ public class CrawlerController : MonoBehaviour
     //Tendremos una Maquina de Estados Finita (FSM)
     private FSM<CrawlerController> mFSM;
 
+    private AudioSource mAudioSource;
+
+    public AudioClip clipJugadorCerca;
+    public AudioClip clipMuerte;
+
     public Animator MAnimator { get => mAnimator; set => mAnimator = value; }
     public Rigidbody MRb { get => mRb; set => mRb = value; }
     public NavMeshAgent NavMeshAgent { get => navMeshAgent; set => navMeshAgent = value; }
     public Collider PlayerCollider { get => playerCollider; set => playerCollider = value; }
+    public AudioSource MAudioSource { get => mAudioSource; set => mAudioSource = value; }
 
     //------------------------------------------------------------------------
 
@@ -39,6 +45,8 @@ public class CrawlerController : MonoBehaviour
         mRb = GetComponent<Rigidbody>();
         //mAnimator = transform.GetComponentInChildren<Animator>(false); //<-- Le decimos que considere a los GO hijos desactivados
         navMeshAgent = GetComponent<NavMeshAgent>();
+
+        MAudioSource = GetComponent<AudioSource>();
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //Creamos un FSM indicando este Script como principal componente
