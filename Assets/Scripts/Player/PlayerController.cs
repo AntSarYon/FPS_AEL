@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     //Variable para manejar el Estado de Movimiento
     private MovementState movementState;
 
+    // UI
+    private UIController UI;
+
     [Header("Velocidad de Movimiento")]
     private float velocidadMovimiento;
     [SerializeField] private float velCaminar;
@@ -33,7 +36,7 @@ public class PlayerController : MonoBehaviour
     private float escalaAgachadoY = 0.3f;
     private float escalaInicial;
 
-    [Header("Velocidad de Rotación")]
+    [Header("Velocidad de Rotaciï¿½n")]
     [SerializeField]
     private float turnSpeed;
 
@@ -47,13 +50,13 @@ public class PlayerController : MonoBehaviour
 
     [Header("Salud")]
     [SerializeField]
-    private float health;
+    public float health;
 
     [Header("Cuerpo")]
     [SerializeField]
     private Transform cuerpo;
 
-    [Header("Control de Fricción")]
+    [Header("Control de Fricciï¿½n")]
     [SerializeField] 
     private LayerMask capaSuelo;
 
@@ -74,7 +77,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private AudioClip clipDisparo;
 
-    //Referencia a Cámara
+    //Referencia a Cï¿½mara
     private Transform cameraMain;
 
     private Rigidbody mRb;
@@ -102,14 +105,18 @@ public class PlayerController : MonoBehaviour
         //Obtenemos referencia al componente RigidBody
         mRb = GetComponent<Rigidbody>();
         mAudioSource = GetComponent<AudioSource>();
+        
+        //Interfaz
+        UI = GetComponent<UIController>();
 
         //Obtenemos referencia a la Camara Principal (Vista de jugador)
         cameraMain = transform.Find("SujetadorDeCamara").Find("Main Camera");
 
-        //Asignamos las Partículas a través de la Carpeta de Resources
+        //Asignamos las Partï¿½culas a travï¿½s de la Carpeta de Resources
         debugImpactSphere = Resources.Load<GameObject>("DebugImpactSphere");
         bloodObjectParticles = Resources.Load<GameObject>("BloodSplat_FX Variant");
         otherObjectParticles = Resources.Load<GameObject>("GunShot_Smoke_FX Variant");
+
 
         //Bloqueamos el Cursor para que este no sea visible
         Cursor.lockState = CursorLockMode.Locked;
@@ -129,7 +136,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        //Manejamos los estados para controlar el movimiento que se realizará
+        //Manejamos los estados para controlar el movimiento que se realizarï¿½
         StateHandler();
 
         ControlarVelocidad();
@@ -142,7 +149,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //-------------------------------------------------------------------------------------------
-    //Manejador de Estados para controlar la Velocidad según cada acción o evento en suceso
+    //Manejador de Estados para controlar la Velocidad segï¿½n cada acciï¿½n o evento en suceso
     private void StateHandler()
     {
         //Modo - Quieto (enganchado)
@@ -206,10 +213,10 @@ public class PlayerController : MonoBehaviour
         //Si se oprime el boton de Salto
         if (value.isPressed)
         {
-            //Si el Player está en el suelo...
+            //Si el Player estï¿½ en el suelo...
             if (enElSuelo)
             {
-                //Saltamos Añadiendo una fuerza de impulso
+                //Saltamos Aï¿½adiendo una fuerza de impulso
                 mRb.AddForce(Vector3.up * 4.25f, ForceMode.Impulse);
             }
         }
@@ -218,7 +225,7 @@ public class PlayerController : MonoBehaviour
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     private void OnLook(InputValue value)
     {
-        //Obtenemos el Vector2 generado por la rotación del Raton
+        //Obtenemos el Vector2 generado por la rotaciï¿½n del Raton
         mDeltaLook = value.Get<Vector2>();
     }
 
@@ -253,7 +260,7 @@ public class PlayerController : MonoBehaviour
 
     private void ControlarAgachado()
     {
-        //Si se está oprimiendo la tecla Control, y estamos sobre el suelo...
+        //Si se estï¿½ oprimiendo la tecla Control, y estamos sobre el suelo...
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             //Reducimos la escala del player
@@ -279,7 +286,7 @@ public class PlayerController : MonoBehaviour
 
     private void ControlarVelocidad()
     {
-        //Si el Gancho está activo, no controles la velocidad
+        //Si el Gancho estï¿½ activo, no controles la velocidad
         if (ganchoActivo) return;
 
         Vector3 velocidadPlana = new Vector3(mRb.velocity.x, 0, mRb.velocity.z);
@@ -295,13 +302,13 @@ public class PlayerController : MonoBehaviour
 
     private void ControlarRotacion()
     {
-        //Actualizamos constantemente la rotación horizontal del Player en torno al Eje Y
+        //Actualizamos constantemente la rotaciï¿½n horizontal del Player en torno al Eje Y
         transform.Rotate(
             Vector3.up,
             turnSpeed * Time.deltaTime * mDeltaLook.x
         );
 
-        ////Actualizamos constantemente la rotación vertical del Player en torno al Eje X
+        ////Actualizamos constantemente la rotaciï¿½n vertical del Player en torno al Eje X
         cameraMain.GetComponent<CameraMovement>().RotateUpDown(
             -turnSpeed * Time.deltaTime * mDeltaLook.y
         );
@@ -355,7 +362,7 @@ public class PlayerController : MonoBehaviour
 
                 //Obtenemos referencia al EnemyController del enemigo impactado
                 var enemyController = hit.collider.GetComponent<EnemyController>();
-                //Hacemos que reciba daño
+                //Hacemos que reciba daï¿½o
                 enemyController.TakeDamage(1f);
 
             }
@@ -363,11 +370,11 @@ public class PlayerController : MonoBehaviour
             //En caso el Objeto impactado no sea un Zombie...
             else
             {
-                //Instanciamos Y Reproducimos el Sistema de Particulas de Pólvora, en el punto donde impacta el disparo
+                //Instanciamos Y Reproducimos el Sistema de Particulas de Pï¿½lvora, en el punto donde impacta el disparo
                 var otherPS = Instantiate(otherObjectParticles, hit.point, Quaternion.identity);
                 otherPS.GetComponent<ParticleSystem>().Play();
 
-                //Destruimos las partículas habiendo pasado 3 segundos
+                //Destruimos las partï¿½culas habiendo pasado 3 segundos
                 Destroy(otherPS, 3f);
             }
             
@@ -405,10 +412,10 @@ public class PlayerController : MonoBehaviour
         //Obtenemos la gravedad (Fuerza constante en Y)
         float gravedad = Physics.gravity.y;
 
-        //Obtenemos el desplazamiento que se llevará a cabo en Y
+        //Obtenemos el desplazamiento que se llevarï¿½ a cabo en Y
         float desplazamientoEnY = puntoFinal.y - puntoInicial.y;
 
-        //Obtenemos el desplazamiento que se llevará a cabo en X y Z
+        //Obtenemos el desplazamiento que se llevarï¿½ a cabo en X y Z
         Vector3 desplazamientoEnXZ = new Vector3(
             puntoFinal.x - puntoInicial.x,
             0f,
@@ -430,10 +437,10 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        //Le restamos al FLOAT de SALUD el daño recibido
+        //Le restamos al FLOAT de SALUD el daï¿½o recibido
         health -= damage;
 
-        //Si la salud se redució por debajo dle limite
+        //Si la salud se reduciï¿½ por debajo dle limite
         if (health <= 0f)
         {
             // Fin del juego
@@ -465,7 +472,7 @@ public class PlayerController : MonoBehaviour
         //Si entramos en contacto con el Collider del ataque del enemigo...
         if (col.CompareTag("Enemigo-Attack"))
         {
-            //Llamamos a la función de Recibir Daño
+            //Llamamos a la funciï¿½n de Recibir Daï¿½o
             TakeDamage(1f);
         }
         
