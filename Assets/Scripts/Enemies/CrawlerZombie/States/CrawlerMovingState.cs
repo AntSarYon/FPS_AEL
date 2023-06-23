@@ -40,7 +40,7 @@ namespace Crawler
             //Activamose l Flag de Animación para Caminar
             mController.MAnimator.SetBool("IsWalking", true);
 
-            mController.MAudioSource.PlayOneShot(mController.clipJugadorCerca, 0.30f);
+            mController.MAudioSource.PlayOneShot(mController.clipJugadorCerca, 0.225f);
         }
 
         public override void OnExit()
@@ -49,6 +49,8 @@ namespace Crawler
             mController.DisableHitbox();
             //Activamose l Flag de Animación para Caminar
             mController.MAnimator.SetBool("IsWalking", false);
+
+            mController.MAudioSource.Stop();
         }
 
         public override void OnUpdate(float deltaTime)

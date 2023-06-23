@@ -7,7 +7,7 @@ public class ZombieController : MonoBehaviour
 {
 
     //Distancias de deteccion y ataque
-    private float AwakeRadio = 15f;
+    private float AwakeRadio = 10f;
     private float AttackRadio = 0.65f;
 
     //Salud

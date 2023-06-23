@@ -71,12 +71,12 @@ namespace Enemy
             //Disparamos el Trigger de Ataque
             mController.MAnimator.SetTrigger("Attack");
 
-            mController.MAudioSource.PlayOneShot(mController.clipsDespertando[Random.Range(0, mController.clipsAtacando.Length)], 0.30f);
+            mController.MAudioSource.PlayOneShot(mController.clipsAtacando[Random.Range(0, mController.clipsAtacando.Length)], 0.225f);
         }
 
         public override void OnExit()
         {
-            //throw new System.NotImplementedException();
+            mController.MAudioSource.Stop();
         }
 
         public override void OnUpdate(float deltaTime)

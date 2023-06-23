@@ -42,7 +42,7 @@ namespace Crawler
 
         public override void OnExit()
         {
-            //throw new System.NotImplementedException();
+            mController.MAudioSource.Stop();
         }
 
         public override void OnUpdate(float deltaTime)

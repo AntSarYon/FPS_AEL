@@ -66,12 +66,12 @@ namespace Zombie
             //Disparamos el Trigger de Ataque
             mController.MAnimator.SetTrigger("Attack");
 
-            mController.MAudioSource.PlayOneShot(mController.clipAtacando, 0.30f);
+            mController.MAudioSource.PlayOneShot(mController.clipAtacando, 0.225f);
         }
 
         public override void OnExit()
         {
-            
+            mController.MAudioSource.Stop();
         }
 
         public override void OnUpdate(float deltaTime)

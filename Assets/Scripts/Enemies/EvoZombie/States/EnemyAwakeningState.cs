@@ -72,7 +72,9 @@ namespace Enemy
 
         public override void OnEnter()
         {
-            mController.MAudioSource.PlayOneShot(mController.clipsDespertando[Random.Range(0, mController.clipsDespertando.Length)], 0.5f);
+            mController.transform.LookAt(mController.PlayerDetectionCollider.transform);
+
+            mController.MAudioSource.PlayOneShot(mController.clipsDespertando[Random.Range(0, mController.clipsDespertando.Length)], 0.7f);
 
             //Disparamos el Flag de Animacion de Alerta
             mController.MAnimator.SetTrigger("Alert");

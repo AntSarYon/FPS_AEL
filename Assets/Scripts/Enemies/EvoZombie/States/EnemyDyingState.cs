@@ -33,12 +33,12 @@ namespace Enemy
             //Inicializamos el Tiempo de muerte en 0
             tiempoMuerte = 0;
 
-            mController.MAudioSource.PlayOneShot(mController.clipsDespertando[Random.Range(0, mController.clipsMuerte.Length)], 0.30f);
+            mController.MAudioSource.PlayOneShot(mController.clipsMuerte[Random.Range(0, mController.clipsMuerte.Length)], 0.30f);
         }
 
         public override void OnExit()
         {
-            
+
         }
 
         public override void OnUpdate(float deltaTime)

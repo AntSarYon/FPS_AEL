@@ -61,7 +61,7 @@ namespace Zombie
             //La velocidad inicia del NavMeshAgent sera de 2
             mController.NavMeshAgent.speed = 2;
 
-            mController.MAudioSource.PlayOneShot(mController.clipJugadorCerca, 0.30f);
+
         }
 
         public override void OnExit()
