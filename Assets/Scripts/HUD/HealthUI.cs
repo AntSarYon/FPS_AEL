@@ -7,18 +7,15 @@ using TMPro;
 
 public class HealthUI : MonoBehaviour
 {
-    [SerializeField]
     private PlayerController player;
-    private float vida;
-    [SerializeField]
-    private Text SaludText;
+    private TMP_Text  SaludText;
 
     // Start is called before the first frame update
     void Start()
     {
-        player = GetComponent<PlayerController>();
+        player = GameObject.Find("Player").GetComponent<PlayerController>();
 
-        SaludText = GetComponent<Text>();
+        SaludText = GetComponent<TMP_Text >();
 
     }
 
@@ -26,8 +23,6 @@ public class HealthUI : MonoBehaviour
     void Update()
     {
         //Actualizar salud
-        vida = player.health;
-        Debug.Log(vida);
-        SaludText.text = "hola";      
+        SaludText.text = player.health.ToString();
     }
 }
