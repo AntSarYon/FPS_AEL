@@ -69,13 +69,10 @@ namespace Enemy
 
             //Disparamos el Trigger de Ataque
             mController.MAnimator.SetTrigger("JumpAttack");
-
-            mController.MAudioSource.PlayOneShot(mController.clipsSaltando[Random.Range(0, mController.clipsSaltando.Length)], 0.7f);
         }
 
         public override void OnExit()
         {
-            mController.MAudioSource.Stop();
         }
 
         public override void OnUpdate(float deltaTime)

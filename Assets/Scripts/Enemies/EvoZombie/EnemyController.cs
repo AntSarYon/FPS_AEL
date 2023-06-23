@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem.XR;
 
 public class EnemyController : MonoBehaviour
 {
@@ -192,4 +193,10 @@ public class EnemyController : MonoBehaviour
         //Reducimos a la Salud el daño recibido por parte del jugador
         Health -= damage;
     }
+
+    public void RepdorucirSalto()
+    {
+        MAudioSource.PlayOneShot(clipsSaltando[Random.Range(0, clipsSaltando.Length)], 0.7f);
+    }
+    
 }

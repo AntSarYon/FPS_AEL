@@ -30,4 +30,9 @@ public class EnemyAttack : MonoBehaviour
     {
         controller.EnableHitbox();
     }
+
+    public void ReproducirSalto()
+    {
+        controller.RepdorucirSalto();
+    }
 }
