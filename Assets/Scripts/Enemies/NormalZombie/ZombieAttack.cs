@@ -4,15 +4,30 @@ using UnityEngine;
 
 public class ZombieAttack : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    //Referencia al componente de ENEMY CONTROLLER
+    [SerializeField]
+    private ZombieController controller;
+
+    //--------------------------------------------------------------
+    //Función para iniciar el Ataque --> Llamada al EnemyController
+    public void StartAtack()
     {
-        
+        controller.StartAtack();
     }
 
-    // Update is called once per frame
-    void Update()
+    //-----------------------------------------------
+    //Función para Detener el Ataque  --> Llamada al EnemyController
+    public void StopAttack()
     {
-        
+        controller.StopAttack();
+        //Internamente estamos desactivando el HitBox
+    }
+
+    //---------------------------------------------
+    //Función para Activar el Hitbox
+
+    public void EnableHitbox()
+    {
+        controller.EnableHitbox();
     }
 }

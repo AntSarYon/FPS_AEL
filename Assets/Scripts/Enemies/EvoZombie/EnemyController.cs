@@ -5,15 +5,14 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
-    //Velocidad de movimiento
-    public float Speed = 2f;
 
     //Distancias de deteccion y ataque
-    public float AwakeRadio = 2f;
-    public float AttackRadio = .5f;
+    private float AwakeRadio = 8f;
+    private float AttackRadio = 1.20f;
+    private float SpecialAttackRadio = 3f;
 
     //Salud
-    public float Health = 5f;
+    public float Health = 10f;
 
     //Referencia a HitBoxes
     public GameObject hitboxRight;
@@ -32,8 +31,21 @@ public class EnemyController : MonoBehaviour
     //Flag de Ataque en curso -> Inicializado en Falso
     private bool mIsAttacking = false;
 
+    private Collider playerDetectionCollider;
+    private Collider playerAttackCollider;
+    private Collider playerSpecialAttackCollider;
+
     //Tendremos una Maquina de Estados Finita (FSM)
     private FSM<EnemyController> mFSM;
+
+    public Animator MAnimator { get => mAnimator; set => mAnimator = value; }
+    public Rigidbody MRb { get => mRb; set => mRb = value; }
+    public NavMeshAgent NavMeshAgent { get => navMeshAgent; set => navMeshAgent = value; }
+    public Vector2 MDirection { get => mDirection; set => mDirection = value; }
+    public Collider PlayerDetectionCollider { get => playerDetectionCollider; set => playerDetectionCollider = value; }
+    public Collider PlayerAttackCollider { get => playerAttackCollider; set => playerAttackCollider = value; }
+    public bool MIsAttacking { get => mIsAttacking; set => mIsAttacking = value; }
+    public Collider PlayerSpecialAttackCollider { get => playerSpecialAttackCollider; set => playerSpecialAttackCollider = value; }
 
     //-----------------------------------------------------------------------
 
@@ -60,65 +72,23 @@ public class EnemyController : MonoBehaviour
 
     private void Update()
     {
+        //Detectamos el collider del Player dentro de la zona de Ataque Especial
+        playerSpecialAttackCollider = IsPlayerInSpecialAttackArea();
+
         //Detectamos el collider del Player dentro de la zona de Ataque
-        var collider1 = IsPlayerInAttackArea();
-
-        //Si hay un collider en la zona de ataque, y NO ESTAMOS ATACANDO
-        if (collider1 != null && !mIsAttacking)
-        {
-            //Nos detenemos asignando la velocididad en 0
-            mRb.velocity = new Vector3(
-                0f,
-                0f,
-                0f
-            );
-
-            //Detenemos al NavMeshAgent
-            navMeshAgent.isStopped = true;
-
-            //Desactivamos el Flag de Animacion para Caminar
-            mAnimator.SetBool("IsWalking", false);
-            //Disparamos el Trigger de Ataque
-            mAnimator.SetTrigger("Attack");
-
-            //Volvemos
-            return;
-        }
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        playerAttackCollider = IsPlayerInAttackArea();
 
         //Detectamos el collider del Player dentro de la zona de Detección
-        var collider2 = IsPlayerNearby();
+        playerDetectionCollider = IsPlayerNearby();
 
-        //Si hay un collider en la zona de Detección, y NO ESTAMOS ATACANDO
-        if (collider2 != null && !mIsAttacking)
-        {
-            //Activamose l Flag de Animación para Caminar
-            mAnimator.SetBool("IsWalking", true);
+    }
 
-            //Indicamos que el NavMeshAgent está en movimiento
-            navMeshAgent.isStopped = false;
+    //----------------------------------------------------------------------------------------------------------
 
-            //Asignamos que el destino del NavMeshAgent sea la pisición del Jugador
-            navMeshAgent.SetDestination(collider2.transform.position);
-        }
-
-        //En caso de que no haya jugador cercano
-        else 
-        {
-            // NOS DETENEMOS
-
-            //Asignamos velocidad a 0
-            mRb.velocity = Vector3.zero;
-            
-            //Desactivamos el Flag de animacion para el movimiento
-            mAnimator.SetBool("IsWalking",false);
-
-            //Detenemos al NavMeshAgent
-            navMeshAgent.isStopped = true;
-
-            //Reiniciamos la Ruta del NavMesh
-            navMeshAgent.ResetPath();
-        }
+    private void FixedUpdate()
+    {
+        //Le pasamos el FixedDeltaTime para no Afectar el rendimiento
+        mFSM.Tick(Time.fixedDeltaTime);
     }
 
 
@@ -148,6 +118,24 @@ public class EnemyController : MonoBehaviour
         var colliders = Physics.OverlapSphere(
             transform.position,
             AttackRadio, //radio de ataque
+            LayerMask.GetMask("Player")
+        );
+        //Si detectamos un collider de Jugador en la zona de ataque; lo retornamos
+        if (colliders.Length == 1) return colliders[0];
+
+        //Caso contrario, retornamos nulo
+        else return null;
+    }
+
+    //------------------------------------------------------------------------------------------
+    //Función para detectar si el jugador está en la zona de Ataque Especial
+
+    private Collider IsPlayerInSpecialAttackArea()
+    {
+        //Creamos una esfera pequeña alrededor del Enemigo para detectar colliders con el LAYER "Player"
+        var colliders = Physics.OverlapSphere(
+            transform.position,
+            SpecialAttackRadio, //radio de ataque
             LayerMask.GetMask("Player")
         );
         //Si detectamos un collider de Jugador en la zona de ataque; lo retornamos
@@ -193,11 +181,5 @@ public class EnemyController : MonoBehaviour
     {
         //Reducimos a la Salud el daño recibido por parte del jugador
         Health -= damage;
-        //Si la salud baja, o iguala a 0
-        if (Health <= 0f)
-        { 
-            //Matamos (Destruimos) el GameObject enemigo
-            Destroy(gameObject);
-        }
     }
 }
