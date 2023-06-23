@@ -25,6 +25,9 @@ public class PlayerController : MonoBehaviour
     //Variable para manejar el Estado de Movimiento
     private MovementState movementState;
 
+    // UI
+    private UIController UI;
+
     [Header("Velocidad de Movimiento")]
     private float velocidadMovimiento;
     [SerializeField] private float velCaminar;
@@ -50,7 +53,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Salud")]
     [SerializeField]
-    private float health;
+    public float health;
 
     [Header("Cuerpo")]
     [SerializeField]
@@ -107,6 +110,9 @@ public class PlayerController : MonoBehaviour
         //Obtenemos referencia al componente RigidBody
         mRb = GetComponent<Rigidbody>();
         mAudioSource = GetComponent<AudioSource>();
+        
+        //Interfaz
+        UI = GetComponent<UIController>();
 
         //Obtenemos referencia a la Camara Principal (Vista de jugador)
         cameraMain = transform.Find("SujetadorDeCamara").Find("Main Camera");
@@ -115,6 +121,7 @@ public class PlayerController : MonoBehaviour
         debugImpactSphere = Resources.Load<GameObject>("DebugImpactSphere");
         bloodObjectParticles = Resources.Load<GameObject>("BloodSplat_FX Variant");
         otherObjectParticles = Resources.Load<GameObject>("GunShot_Smoke_FX Variant");
+
 
         //Bloqueamos el Cursor para que este no sea visible
         Cursor.lockState = CursorLockMode.Locked;
