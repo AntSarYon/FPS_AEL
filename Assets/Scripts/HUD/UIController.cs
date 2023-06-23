@@ -7,7 +7,7 @@ public class UIController : MonoBehaviour
 {
     // Start is called before the first frame update
     private PlayerController player;
-    public static int currentFaceSet = 0;
+    private int currentFaceSet;
     public Sprite[] facesFullHP;
     public Sprite[] facesHighHP;
     public Sprite[] facesLowHP;
@@ -16,13 +16,25 @@ public class UIController : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
-
+        currentFaceSet = 4;
     }
 
     // Update is called once per frame
     void Update()
     {
         changeFace();
+        if (player.IsGrappling() == true){
+            currentFaceSet = 0;
+        }
+        else if (player.IsWallrunning() == true){
+            currentFaceSet = 1;
+        }
+        else if (player.IsOnFloor() == true){
+            currentFaceSet = 4;
+        }
+        else if (player.IsInAir() == true){
+            currentFaceSet = 2;
+        }
     }
 
     public void changeFace(){

@@ -485,4 +485,23 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawRay(cuerpo.position, Vector3.down * 0.45f);
     }
 
+    public bool IsOnFloor(){
+        return enElSuelo;
+    }
+    public bool IsGrappling(){
+        return ganchoActivo;
+    }
+    public bool IsWallrunning(){
+        return wallRunning;
+    }
+    public bool IsInAir(){
+        //bool isInAir = movementState =
+        if(movementState == MovementState.inAir){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
 }
