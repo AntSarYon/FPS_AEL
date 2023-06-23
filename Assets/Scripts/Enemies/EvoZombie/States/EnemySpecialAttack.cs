@@ -75,6 +75,7 @@ namespace Enemy
 
         public override void OnExit()
         {
+            mController.MAudioSource.Stop();
         }
 
         public override void OnUpdate(float deltaTime)
