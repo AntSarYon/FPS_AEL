@@ -25,7 +25,15 @@ public class HealthUI : MonoBehaviour
 
     void Update()
     {
-        //Actualizar salud
-        SaludText.text = player.health.ToString();
+        if (player.health <= 0)
+        {
+            SaludText.text = "0";
+        }
+        else
+        {
+            //Actualizar salud
+            SaludText.text = player.health.ToString();
+        }
+        
     }
 }

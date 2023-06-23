@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class CrawlerController : MonoBehaviour
 {
     //Distancias de deteccion y ataque
-    private float AwakeRadio = 3f;
+    private float AwakeRadio = 3.5f;
     //Salud
     public float Health = 3f;
 

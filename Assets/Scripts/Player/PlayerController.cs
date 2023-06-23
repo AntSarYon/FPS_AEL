@@ -108,6 +108,9 @@ public class PlayerController : MonoBehaviour
         //Inicializamoe salud en 100
         health = 100;
 
+        //Seteamos este como el PlayerController que el GameManager debe evaluar
+        GameManager.Instance.Player = this;
+
         //Obtenemos la referencia al array de weapons
         weaponSwitch = gameObject.GetComponent<WeaponSwitch>();
 
