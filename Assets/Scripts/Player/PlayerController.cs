@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public enum MovementState
 {
@@ -498,6 +499,25 @@ public class PlayerController : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawRay(cuerpo.position, Vector3.down * 0.45f);
+    }
+
+    // Funciones públicas para obtener estados
+    public bool IsOnFloor(){
+        return enElSuelo;
+    }
+    public bool IsGrappling(){
+        return ganchoActivo;
+    }
+    public bool IsWallrunning(){
+        return wallRunning;
+    }
+    public bool IsInAir(){
+        //bool isInAir = movementState =
+        if(movementState == MovementState.inAir){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }
